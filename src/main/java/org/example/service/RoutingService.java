@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -12,16 +13,40 @@ public class RoutingService {
     private static final Logger log = LoggerFactory.getLogger(RoutingService.class);
 
     private final CountryService countryService;
+    private final Map<String, Optional<List<String>>> routeCache;
 
-    public RoutingService(CountryService countryService) {
+    public RoutingService(CountryService countryService,
+                          @Value("${route.cache.max-size:500}") int cacheMaxSize) {
         this.countryService = countryService;
+        this.routeCache = Collections.synchronizedMap(
+            new LinkedHashMap<>(cacheMaxSize, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Optional<List<String>>> eldest) {
+                    return size() > cacheMaxSize;
+                }
+            }
+        );
     }
 
     /**
      * Returns the shortest land route from origin to destination via BFS,
      * or empty Optional if no route exists or either country is unknown.
+     * Results are cached in an LRU cache of configurable size.
      */
     public Optional<List<String>> findRoute(String origin, String destination) {
+        String cacheKey = origin + "->" + destination;
+        Optional<List<String>> cached = routeCache.get(cacheKey);
+        if (cached != null) {
+            log.debug("Cache hit for route {} -> {}", origin, destination);
+            return cached;
+        }
+
+        Optional<List<String>> result = computeRoute(origin, destination);
+        routeCache.put(cacheKey, result);
+        return result;
+    }
+
+    private Optional<List<String>> computeRoute(String origin, String destination) {
         if (!countryService.countryExists(origin) || !countryService.countryExists(destination)) {
             log.info("Unknown country in routing request: {} -> {}", origin, destination);
             return Optional.empty();

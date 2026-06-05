@@ -44,18 +44,15 @@ GET /routing/CZE/AUS
 HTTP 400 Bad Request
 ```
 
-## Test
+## Configuration
+
+| Property | Default | Description |
+|---|---|---|
+| `countries.source.url` | GitHub `mledoze/countries` | URL of the `countries.json` data source |
+| `route.cache.max-size` | `500` | Maximum number of routes kept in the LRU cache |
+
+Properties can be overridden via `application.properties` or on the command line:
 
 ```bash
-mvn test
+mvn spring-boot:run -Dspring-boot.run.arguments="--route.cache.max-size=1000"
 ```
-
-Unit tests cover `RoutingService` in isolation (Mockito). Integration tests cover the full HTTP stack with a mocked `CountryService` so no network access is required during tests.
-
-## Design
-
-| Class | Responsibility |
-|---|---|
-| `CountryService` | Fetches `countries.json` at startup, exposes the border graph |
-| `RoutingService` | BFS over the border graph; returns `null` when no route exists |
-| `RoutingController` | Translates `null` → 400, route → 200 with JSON body |
