@@ -19,7 +19,7 @@ public class RoutingService {
 
     /**
      * Returns the shortest land route from origin to destination via BFS,
-     * or null if no route exists or either country is unknown.
+     * or empty Optional if no route exists or either country is unknown.
      */
     public Optional<List<String>> findRoute(String origin, String destination) {
         if (!countryService.countryExists(origin) || !countryService.countryExists(destination)) {
