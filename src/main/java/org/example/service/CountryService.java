@@ -17,7 +17,7 @@ public class CountryService {
 
     private static final Logger log = LoggerFactory.getLogger(CountryService.class);
 
-    @Value("${countries.source.url:https://raw.githubusercontent.com/mledoze/countries/master/countries.json}")
+    @Value("${countries.source.url}")
     private String countriesUrl;
 
     private Map<String, Set<String>> borderGraph;
