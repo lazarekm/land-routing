@@ -1,11 +1,15 @@
 package org.example.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class RoutingService {
+
+    private static final Logger log = LoggerFactory.getLogger(RoutingService.class);
 
     private final CountryService countryService;
 
@@ -19,6 +23,7 @@ public class RoutingService {
      */
     public Optional<List<String>> findRoute(String origin, String destination) {
         if (!countryService.countryExists(origin) || !countryService.countryExists(destination)) {
+            log.info("Unknown country in routing request: {} -> {}", origin, destination);
             return Optional.empty();
         }
         if (origin.equals(destination)) {
@@ -46,6 +51,7 @@ public class RoutingService {
                 }
             }
         }
+        log.info("No land route found from {} to {}", origin, destination);
         return Optional.empty();
     }
 

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.example.model.Country;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -12,6 +14,8 @@ import java.util.*;
 
 @Service
 public class CountryService {
+
+    private static final Logger log = LoggerFactory.getLogger(CountryService.class);
 
     @Value("${countries.source.url:https://raw.githubusercontent.com/mledoze/countries/master/countries.json}")
     private String countriesUrl;
@@ -41,6 +45,7 @@ public class CountryService {
                 c.borders() != null ? new HashSet<>(c.borders()) : new HashSet<>());
         }
         this.borderGraph = Collections.unmodifiableMap(graph);
+        log.info("Loaded {} countries", borderGraph.size());
     }
 
     public Map<String, Set<String>> getBorderGraph() {
