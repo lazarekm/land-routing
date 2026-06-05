@@ -37,7 +37,7 @@ public class CountryService {
         try {
             countries = objectMapper.readValue(json, new TypeReference<>() {});
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to parse country data", e);
+            throw new IllegalStateException("Failed to parse country data from: " + countriesUrl, e);
         }
         Map<String, Set<String>> graph = new HashMap<>();
         for (Country c : countries) {
@@ -45,7 +45,7 @@ public class CountryService {
                 c.borders() != null ? new HashSet<>(c.borders()) : new HashSet<>());
         }
         this.borderGraph = Collections.unmodifiableMap(graph);
-        log.info("Loaded {} countries", borderGraph.size());
+        log.info("Loaded {} countries from {}", borderGraph.size(), countriesUrl);
     }
 
     public Map<String, Set<String>> getBorderGraph() {
